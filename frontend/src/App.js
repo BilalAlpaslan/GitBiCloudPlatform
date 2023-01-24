@@ -1,78 +1,62 @@
 
 import React from 'react';
 import { Box, Button } from '@mui/material';
-import { Octokit } from "octokit";
+import { octokitEntity, checkOctokit } from './Bloc/token';
+import { getDashboardJson, dashboardEntity, dashboardSHAEntity, commitDashboardJson, loadDataFromSource, panelsDataEntity } from './Bloc/dashboard';
+import Appbar from './components/Appbar';
+
 
 function App() {
-  const [token, setToken] = React.useState(localStorage.getItem('token') || null);
-  const repo = 'GitBiCloudPlatform';
-  const owner = 'bilalalpaslan';
+  const octokit = octokitEntity.use();
+  const dashboard = dashboardEntity.use();
+  const dashboardSha = dashboardSHAEntity.use();
+  const panelData = panelsDataEntity.use();
 
-  const getGitCredentials = (token) => {
-    localStorage.setItem('token', token);
-    setToken(token);
-  }
+  React.useEffect(() => {
+    checkOctokit();
+    if (octokit) getDashboardJson(octokit);
+  }, [octokit]);
 
-
-  const commitJsonFile = () => {
-    const octokit = new Octokit({
-      auth: token,
-    });
-
-    let sha;
-
-    octokit.request('GET /repos/{owner}/{repo}/contents/data/data.json', {
-      owner,
-      repo,
-      path: 'data/data.json',
-    })
-      .then(res => {
-        sha = res.data.sha;
-        console.log(sha);
-        octokit.request('PUT /repos/{owner}/{repo}/contents/data/data.json', {
-          owner,
-          repo,
-          sha,
-          path: 'data/data.json',
-          message: 'new commit',
-          content: btoa(JSON.stringify({ "name": "bilal-2" })),
-          headers: {
-            'Content-Type': 'application/json',
-          }
-        })
-          .then(res => console.log(res))
-          .catch(err => console.log(err)); 
-      } )
-      .catch(err => console.log(err));
-
-  }
-
+  React.useEffect(() => {
+    if (dashboard.panels) {
+      dashboard.panels.forEach(panel => {
+          loadDataFromSource(octokit, panel.datasource)
+      });
+    }
+  }, [octokit, dashboard]);
 
   return (
     <>
+    <Appbar/>
+    <div style={{ height: '42px' }}/>
       <Box>
-        <h1>React App</h1>
-        {  ! token ?
         <Box>
-          <form onSubmit={(e) => getGitCredentials(e.target.token.value)}>
-            <label htmlFor="token">token</label>
-            <input type="text" id="token" />
-            <Button variant="contained" color="primary" type="submit">
-              Submit
-            </Button>
-          </form>
-        </Box> 
-        :
-        <Box>
-          <h2>Authenticated</h2>
-          <Button variant="contained" color="primary" onClick={() => commitJsonFile()}>
-            commit
-          </Button>
-        </Box>
-        }
+          <h2>Dashboard - {dashboard.title} </h2> 
+          {dashboard.panels ? dashboard.panels.map((element, i) =>
+            <Box key={i}>
+              <h2>Panel {i + 1}</h2>
+              <form onSubmit={(e) => {
+                e.preventDefault();
+                dashboard.panels[i].title = e.target.title.value;
+                commitDashboardJson(octokit, dashboardSha, btoa(JSON.stringify(dashboard)));
+              }}>
+                <input type="text" id="title" defaultValue={element.title} />
+                <Button variant="contained" color="primary" type="submit">
+                  Submit
+                </Button>
+              </form>
+              {panelData[element.datasource] ? panelData[element.datasource].map(item =>
+                <Box key={item.id}>
+                  <h3>{item.name}</h3>
+                  <p>{element.age}</p>
+                </Box>
+              ) : 'veri yok'}
+            </Box>
+          ) : 'yok'}
+            </Box>
       </Box>
-    </>
-  );
+      </>
+      );
 }
 
-export default App;
+      export default App;
