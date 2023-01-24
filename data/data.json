@@ -1,1 +1,62 @@
-{"name":"bilal-2"}
+[
+    {
+        "id": "1",
+        "name": "John",
+        "age": "30",
+        "city": "New York"
+    },
+    {
+        "id": "2",
+        "name": "Peter",
+        "age": "40",
+        "city": "Boston"
+    },
+    {
+        "id": "3",
+        "name": "Sally",
+        "age": "50",
+        "city": "Los Angeles"
+    },
+    {
+        "id": "4",
+        "name": "Richard",
+        "age": "60",
+        "city": "Chicago"
+    },
+    {
+        "id": "5",
+        "name": "Susan",
+        "age": "70",
+        "city": "Houston"
+    },
+    {
+        "id": "6",
+        "name": "Vicky",
+        "age": "80",
+        "city": "Philadelphia"
+    },
+    {
+        "id": "7",
+        "name": "Ben",
+        "age": "90",
+        "city": "Phoenix"
+    },
+    {
+        "id": "8",
+        "name": "William",
+        "age": "100",
+        "city": "San Antonio"
+    },
+    {
+        "id": "9",
+        "name": "Chuck",
+        "age": "110",
+        "city": "San Diego"
+    },
+    {
+        "id": "10",
+        "name": "Viola",
+        "age": "120",
+        "city": "Dallas"
+    }
+]
